@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
 class DraggableCard extends StatefulWidget {
-  const DraggableCard({this.color});
   final Color color;
 
+  const DraggableCard({this.color});
+
   @override
-  DraggableCardState createState() {
-    return new DraggableCardState();
-  }
+  State createState() => _DraggableCardState();
 }
 
-class DraggableCardState extends State<DraggableCard>
+class _DraggableCardState extends State<DraggableCard>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Alignment _dragAlignment = Alignment.center;
@@ -49,7 +48,6 @@ class DraggableCardState extends State<DraggableCard>
       },
       onPanUpdate: (details) {
         setState(() {
-          _selected = true;
           _dragAlignment += Alignment(
             details.delta.dx / (size.width / 2),
             details.delta.dy / (size.height / 2),
