@@ -1,88 +1,92 @@
 import 'package:flutter/material.dart';
 
-class DraggableCard extends StatefulWidget {
-  final Color color;
+class Player extends StatefulWidget {
+  final Offset initPos;
+  final String label;
+  final Color itemColor;
 
-  const DraggableCard({this.color});
+  Player(this.initPos, this.label, this.itemColor);
 
   @override
-  State createState() => _DraggableCardState();
+  _PlayerState createState() => _PlayerState();
 }
 
-class _DraggableCardState extends State<DraggableCard>
-    with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Alignment _dragAlignment = Alignment.center;
-  Animation<Alignment> _animation;
-  bool _selected = false;
+class _PlayerState extends State<Player> {
+  Offset position = Offset(0.0, 0.0);
+  double size = 70.0;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
-
-    _controller.addListener(() {
-      setState(() {
-        _selected = _selected;
-        _dragAlignment = _animation.value;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    position = widget.initPos;
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return GestureDetector(
-      onPanDown: (details) {
-        _controller.stop();
-        setState(() {
-          _selected = true;
-        });
-      },
-      onPanUpdate: (details) {
-        setState(() {
-          _dragAlignment += Alignment(
-            details.delta.dx / (size.width / 2),
-            details.delta.dy / (size.height / 2),
-          );
-        });
-      },
-      onPanEnd: (details) {
-        setState(() {
-          _selected = false;
-        });
-      },
-      child: Align(
-        alignment: _dragAlignment,
+    print(position);
+    return Positioned(
+      left: position.dx,
+      top: position.dy - (size + 10.0),
+      child: Draggable(
+        data: widget.itemColor,
         child: Card(
-            color: widget.color,
-            shape: StadiumBorder(
-              side: BorderSide(
-                color:
-                    _selected ? darken(widget.color, 40) : Colors.transparent,
-                width: 2.0,
+          color: widget.itemColor,
+          shape: StadiumBorder(),
+          child: Container(
+            width: size,
+            height: size,
+            child: Center(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                  fontSize: 18.0,
+                ),
               ),
             ),
-            elevation: _selected ? 5 : 0,
-            child: Container(
-              width: 30,
-              height: 30,
-            )),
+          ),
+        ),
+        childWhenDragging: Card(
+          shape: StadiumBorder(),
+        ),
+        feedback: Card(
+          color: widget.itemColor,
+          shape: StadiumBorder(
+            side: BorderSide(
+              color: darken(widget.itemColor, 30),
+              width: 2.0,
+            ),
+          ),
+          elevation: 5,
+          child: Container(
+            width: size,
+            height: size,
+            child: Center(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.none,
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        onDraggableCanceled: (velocity, offset) {
+          setState(() {
+            position = offset;
+          });
+        },
       ),
     );
   }
+}
 
-  Color darken(Color c, [int percent = 10]) {
-    assert(1 <= percent && percent <= 100);
-    var f = 1 - percent / 100;
-    return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
-        (c.blue * f).round());
-  }
+Color darken(Color c, [int percent = 10]) {
+  assert(1 <= percent && percent <= 100);
+  var f = 1 - percent / 100;
+  return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
+      (c.blue * f).round());
 }
