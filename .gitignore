@@ -30,6 +30,7 @@
 # Android related
 **/android/**/gradle-wrapper.jar
 **/android/.gradle
+**/android/app/google-services.json
 **/android/captures/
 **/android/gradlew
 **/android/gradlew.bat
@@ -61,6 +62,7 @@
 **/ios/Flutter/flutter_assets/
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Runner/GoogleService-Info.plist
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
