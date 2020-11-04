@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
-class Player extends StatefulWidget {
+class DraggableCard extends StatefulWidget {
   final Offset initPos;
   final String label;
-  final Color itemColor;
+  final Color color;
 
-  Player(this.initPos, this.label, this.itemColor);
+  DraggableCard({Key key, this.initPos, this.label, this.color})
+      : super(key: key);
 
   @override
-  _PlayerState createState() => _PlayerState();
+  _DraggableCardState createState() => _DraggableCardState();
 }
 
-class _PlayerState extends State<Player> {
-  Offset position = Offset(0.0, 0.0);
+class _DraggableCardState extends State<DraggableCard> {
+  Offset position;
   double size = 70.0;
 
   @override
@@ -23,14 +24,17 @@ class _PlayerState extends State<Player> {
 
   @override
   Widget build(BuildContext context) {
-    print(position);
+    print('Build Draggable Card: $position');
     return Positioned(
       left: position.dx,
-      top: position.dy - (size + 10.0),
+      top: position.dy,
       child: Draggable(
-        data: widget.itemColor,
+        data: [
+          widget.color,
+          widget.label,
+        ],
         child: Card(
-          color: widget.itemColor,
+          color: widget.color,
           shape: StadiumBorder(),
           child: Container(
             width: size,
@@ -47,14 +51,12 @@ class _PlayerState extends State<Player> {
             ),
           ),
         ),
-        childWhenDragging: Card(
-          shape: StadiumBorder(),
-        ),
+        childWhenDragging: Container(),
         feedback: Card(
-          color: widget.itemColor,
+          color: widget.color,
           shape: StadiumBorder(
             side: BorderSide(
-              color: darken(widget.itemColor, 30),
+              color: darken(widget.color, 30),
               width: 2.0,
             ),
           ),
@@ -75,9 +77,14 @@ class _PlayerState extends State<Player> {
           ),
         ),
         onDraggableCanceled: (velocity, offset) {
+          print('onDraggableCanceled');
           setState(() {
+            print('onDraggableCanceled position: $offset');
             position = offset;
           });
+        },
+        onDragCompleted: () {
+          print('onDragCompleted');
         },
       ),
     );

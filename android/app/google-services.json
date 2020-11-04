@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "324461404140",
+    "firebase_url": "https://scout-d7c93.firebaseio.com",
+    "project_id": "scout-d7c93",
+    "storage_bucket": "scout-d7c93.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324461404140:android:155137ac013a67d341aac9",
+        "android_client_info": {
+          "package_name": "com.krro.scout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "324461404140-jqkop388fnad65q4i5jcetshk87gs692.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYReIS1w-RB1FNHZMNnww20j-ukWTZ0pE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "324461404140-jqkop388fnad65q4i5jcetshk87gs692.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
