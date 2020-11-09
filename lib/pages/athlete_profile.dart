@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AthleteProfile extends StatelessWidget {
+  AthleteProfile({this.name, this.position});
+
+  final String name;
+  final String position;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -15,7 +20,7 @@ class AthleteProfile extends StatelessWidget {
           radius: 70.0,
         ),
         Text(
-          'Carolina Pires',
+          name,
           style: TextStyle(
             fontFamily: 'Pacifico',
             fontSize: 40.0,
@@ -24,7 +29,7 @@ class AthleteProfile extends StatelessWidget {
           ),
         ),
         Text(
-          'Goleira'.toUpperCase(),
+          position.toUpperCase(),
           style: TextStyle(
             fontFamily: 'SourceSansPro',
             fontSize: 30.0,

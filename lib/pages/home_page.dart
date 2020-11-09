@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:scout/components/icon_content.dart';
+import 'package:scout/components/reusable_card.dart';
 import 'package:scout/constants.dart';
+import 'package:scout/pages/athletes_screen.dart';
 import 'package:scout/pages/match_form.dart';
+import 'package:scout/pages/team_form.dart';
 
 class ScoutHome extends StatefulWidget {
   static const String id = 'home';
@@ -32,9 +36,47 @@ class _ScoutHomeState extends State<ScoutHome>
         child: Center(
           child: Column(
             children: [
-              SpinKitChasingDots(
-                color: Colors.orange,
-                size: 100.0,
+              Row(
+                children: [
+                  Expanded(
+                    child: ReusableCard(
+                      colour: Colors.green,
+                      cardChild: IconContent(
+                        icon: Icons.settings,
+                        label: 'Gerenciar Times',
+                      ),
+                      onPress: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TeamForm(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: ReusableCard(
+                      colour: Colors.lightGreen,
+                      cardChild: IconContent(
+                        icon: FontAwesomeIcons.users,
+                        label: 'Gerenciar Atletas',
+                      ),
+                      onPress: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AthletesScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
               FlatButton(
                 onPressed: () {

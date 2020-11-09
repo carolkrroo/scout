@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class RoundIconButton extends StatelessWidget {
-  RoundIconButton({@required this.icon, @required this.onPressed});
+  RoundIconButton({@required this.icon, @required this.onPressed, this.colour});
 
   final IconData icon;
   final Function onPressed;
+  final Color colour;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class RoundIconButton extends StatelessWidget {
         height: 56.0,
       ),
       shape: CircleBorder(),
-      fillColor: Color(0xFF4C4F5E),
+      fillColor: colour,
     );
   }
 }

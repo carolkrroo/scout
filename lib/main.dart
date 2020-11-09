@@ -20,13 +20,23 @@ class MyApp extends StatelessWidget {
       title: "Scout",
       theme: ThemeData(
         // brightness: Brightness.dark,
-        primaryColor: Color(0xff075E54),
-        accentColor: Color(0xff25D366),
+        primaryColor: Colors.indigo,
+        primaryColorLight: Color(0xFFC5CAE9),
+        accentColor: Colors.orange,
         fontFamily: 'Roboto',
         textTheme: TextTheme(
           headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
           headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-          bodyText2: TextStyle(fontSize: 14.0, fontFamily: 'Hind'),
+          bodyText1: TextStyle(
+            fontSize: 14.0,
+            fontFamily: 'Hind',
+            color: Color(0xFF212121),
+          ),
+          bodyText2: TextStyle(
+            fontSize: 14.0,
+            fontFamily: 'Hind',
+            color: Color(0xFF757575),
+          ),
         ),
       ),
       debugShowCheckedModeBanner: false,

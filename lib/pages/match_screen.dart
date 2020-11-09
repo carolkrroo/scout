@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scout/components/draggable_card.dart';
 import 'package:scout/components/reusable_card.dart';
 import 'package:scout/components/target_card.dart';
+import 'package:scout/components/timer.dart';
 import 'package:scout/services/page_orientation.dart';
 import 'package:scout/team.dart';
 
@@ -51,7 +52,7 @@ class _MatchScreenState extends State<MatchScreen> {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     super.dispose();
     PageOrientation().enableRotation();
   }
@@ -64,6 +65,9 @@ class _MatchScreenState extends State<MatchScreen> {
       appBar: AppBar(
         title: Text("Match"),
         elevation: 0.7,
+        actions: <Widget>[
+          Timer(),
+        ],
       ),
       body: Column(
         children: <Widget>[
