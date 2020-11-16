@@ -108,7 +108,7 @@ class _AthleteFormState extends State<AthleteForm> {
                 children: <Widget>[
                   Expanded(
                     child: ReusableCard(
-                      colour: selectedGender == Gender.male
+                      backgroundColour: selectedGender == Gender.male
                           ? kActiveCardColour
                           : kInactiveCardColour,
                       cardChild: IconContent(
@@ -124,7 +124,7 @@ class _AthleteFormState extends State<AthleteForm> {
                   ),
                   Expanded(
                     child: ReusableCard(
-                      colour: selectedGender == Gender.female
+                      backgroundColour: selectedGender == Gender.female
                           ? kActiveCardColour
                           : kInactiveCardColour,
                       cardChild: IconContent(
@@ -143,7 +143,7 @@ class _AthleteFormState extends State<AthleteForm> {
             ),
             Expanded(
               child: ReusableCard(
-                colour: kActiveCardColour,
+                backgroundColour: kActiveCardColour,
                 cardChild: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -197,7 +197,7 @@ class _AthleteFormState extends State<AthleteForm> {
                 children: <Widget>[
                   Expanded(
                     child: ReusableCard(
-                      colour: kActiveCardColour,
+                      backgroundColour: kActiveCardColour,
                       cardChild: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -239,7 +239,7 @@ class _AthleteFormState extends State<AthleteForm> {
                   ),
                   Expanded(
                     child: ReusableCard(
-                      colour: kActiveCardColour,
+                      backgroundColour: kActiveCardColour,
                       cardChild: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[

@@ -80,7 +80,7 @@ class _MatchScreenState extends State<MatchScreen> {
                   Row(
                     children: <Widget>[
                       ReusableCard(
-                        colour: selectedDefense == '6:0'
+                        backgroundColour: selectedDefense == '6:0'
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(
@@ -98,7 +98,7 @@ class _MatchScreenState extends State<MatchScreen> {
                         },
                       ),
                       ReusableCard(
-                        colour: selectedDefense == '5:1'
+                        backgroundColour: selectedDefense == '5:1'
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(
@@ -116,7 +116,7 @@ class _MatchScreenState extends State<MatchScreen> {
                         },
                       ),
                       ReusableCard(
-                        colour: selectedDefense == '4:2'
+                        backgroundColour: selectedDefense == '4:2'
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(
@@ -134,7 +134,7 @@ class _MatchScreenState extends State<MatchScreen> {
                         },
                       ),
                       ReusableCard(
-                        colour: selectedDefense == '5+1'
+                        backgroundColour: selectedDefense == '5+1'
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(

@@ -14,15 +14,17 @@ class AthleteProfile extends StatelessWidget {
         CircleAvatar(
           backgroundColor: Colors.orange,
           foregroundColor: Colors.black,
-          child: Text('CP',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)),
+          child: Text(
+            'CP',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+          ),
           backgroundImage: AssetImage('assets/img/Krro1.jpg'),
           radius: 70.0,
         ),
         Text(
           name,
           style: TextStyle(
-            fontFamily: 'Pacifico',
+            fontFamily: 'BarlowSemiCondensed',
             fontSize: 40.0,
             fontWeight: FontWeight.bold,
             color: Colors.orange,
