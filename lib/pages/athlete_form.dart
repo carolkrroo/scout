@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -6,10 +7,12 @@ import 'package:scout/components/reusable_card.dart';
 import 'package:scout/components/round_icon_button.dart';
 import 'package:scout/constants.dart';
 import 'package:scout/enums/gender.enum.dart';
+import 'package:scout/enums/players-positions.enum.dart';
 import 'package:scout/services/location.dart';
-import 'package:scout/team.dart';
 
-import 'match_screen.dart';
+import 'home_page.dart';
+
+final _firestore = FirebaseFirestore.instance;
 
 class AthleteForm extends StatefulWidget {
   static const String id = 'athlete_form';
@@ -19,12 +22,14 @@ class AthleteForm extends StatefulWidget {
 }
 
 class _AthleteFormState extends State<AthleteForm> {
-  Gender selectedGender;
+  Gender selectedGender = Gender.female;
   String name = '';
   String lastName = '';
   int height = 180;
   int weight = 60;
   int age = 18;
+  PlayersPositions position = PlayersPositions.goalkeeper;
+  String teamId = 'CSKA';
 
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
@@ -102,6 +107,77 @@ class _AthleteFormState extends State<AthleteForm> {
                   ),
                 ],
               ),
+            ),
+            Row(
+              children: <Widget>[
+                Text(
+                  'Posição',
+                  style: TextStyle(
+                    fontFamily: 'BarlowSemiCondensed',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
+                ),
+                DropdownButton<PlayersPositions>(
+                  value: position,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.indigo,
+                  ),
+                  onChanged: (PlayersPositions newValue) {
+                    setState(() {
+                      position = newValue;
+                    });
+                  },
+                  items: PlayersPositions.values
+                      .map<DropdownMenuItem<PlayersPositions>>(
+                          (PlayersPositions value) {
+                    return DropdownMenuItem<PlayersPositions>(
+                      value: value,
+                      child: Text(value.toString()),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+            Row(
+              children: <Widget>[
+                Text(
+                  'Time',
+                  style: TextStyle(
+                    fontFamily: 'BarlowSemiCondensed',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
+                ),
+                DropdownButton<String>(
+                  value: teamId,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.indigo,
+                  ),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      teamId = newValue;
+                    });
+                  },
+                  items: <String>['CSKA', 'GYÖRI AUDI ETO KC']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
             Expanded(
               child: Row(
@@ -285,12 +361,27 @@ class _AthleteFormState extends State<AthleteForm> {
             GestureDetector(
               onTap: () {
                 if (_formKey.currentState.validate()) {
-                  Team team1 = Team(name: 'FAU');
-                  Team team2 = Team(name: 'USP');
+                  _firestore
+                      .collection("users")
+                      .doc(loggedInUser.email)
+                      .collection('athletes')
+                      .add({
+                        'name': name,
+                        'last_name': lastName,
+                        'gender': selectedGender.toString(),
+                        'height': height,
+                        'position': position.toString(),
+                        'team_id': teamId,
+                        'weight': weight
+                      })
+                      .then((docRef) =>
+                          print("Document written with ID: ${docRef.id}"))
+                      .catchError(
+                          (error) => print("Error adding document: $error"));
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MatchScreen(team1, team2),
+                      builder: (context) => ScoutHome(),
                     ),
                   );
                 }

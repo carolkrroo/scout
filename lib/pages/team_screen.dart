@@ -62,23 +62,18 @@ class TeamsList extends StatelessWidget {
             ),
           );
         }
+
         final teams = snapshot.data.docs;
-        List<TeamProfile> teamsProfiles = [];
 
-        for (var team in teams) {
-          print('team: $team');
-          final teamName = team.data()['name'];
-
-          final teamProfile = TeamProfile(
-            name: teamName,
-          );
-
-          teamsProfiles.add(teamProfile);
-        }
         return Expanded(
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-            children: teamsProfiles,
+          child: ListView.builder(
+            itemBuilder: (context, index) {
+              return TeamProfile(
+                id: teams[index].id,
+                name: teams[index].data()['name'],
+              );
+            },
+            itemCount: teams.length,
           ),
         );
       },

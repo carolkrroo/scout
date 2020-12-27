@@ -61,24 +61,17 @@ class AthletesList extends StatelessWidget {
           );
         }
         final athletes = snapshot.data.docs;
-        List<AthleteProfile> athleteProfiles = [];
 
-        for (var athlete in athletes) {
-          print('athlete: $athlete');
-          final athleteName = athlete.data()['name'];
-          final athletePosition = athlete.data()['position_id'];
-
-          final athleteProfile = AthleteProfile(
-            name: athleteName,
-            position: athletePosition,
-          );
-
-          athleteProfiles.add(athleteProfile);
-        }
         return Expanded(
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-            children: athleteProfiles,
+          child: ListView.builder(
+            itemBuilder: (context, index) {
+              return AthleteProfile(
+                id: athletes[index].id,
+                name: athletes[index].data()['name'],
+                position: athletes[index].data()['position'],
+              );
+            },
+            itemCount: athletes.length,
           ),
         );
       },

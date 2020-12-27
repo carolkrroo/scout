@@ -3,8 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scout/constants.dart';
 
+import 'home_page.dart';
+
 final _firestore = FirebaseFirestore.instance;
-User loggedInUser;
 
 class ChatScreen extends StatefulWidget {
   static const String id = 'chat_screen';
@@ -21,14 +22,14 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
+    print('initState');
     getCurrentUser();
   }
 
   void getCurrentUser() {
     try {
       final user = _auth.currentUser;
-      print(user);
+      print('user: $user');
       if (user != null) {
         loggedInUser = user;
       }

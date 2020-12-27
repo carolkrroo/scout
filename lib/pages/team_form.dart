@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:scout/components/image_picker_button.dart';
 import 'package:scout/constants.dart';
-import 'package:scout/services/location.dart';
 
 import 'home_page.dart';
 
@@ -22,6 +22,7 @@ class TeamForm extends StatefulWidget {
 class _TeamFormState extends State<TeamForm> {
   String teamName = '';
   File _image;
+  final picker = ImagePicker();
 
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
@@ -32,13 +33,19 @@ class _TeamFormState extends State<TeamForm> {
 
   void initState() {
     super.initState();
-
-    getLocation();
   }
 
-  void getLocation() async {
-    Location location = Location();
-    await location.getCurrentLocation();
+  Future getImage() async {
+    print('acessou getImage');
+    final pickedFile = await picker.getImage(source: ImageSource.camera);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
   }
 
   @override
@@ -58,43 +65,6 @@ class _TeamFormState extends State<TeamForm> {
               height: 8.0,
             ),
             ImagePickerButton(),
-            GestureDetector(
-              // onTap: () => imagePicker.showDialog(context),
-              child: Center(
-                child: _image == null
-                    ? Stack(
-                        children: <Widget>[
-                          Center(
-                            child: new CircleAvatar(
-                              radius: 80.0,
-                              backgroundColor: const Color(0xFF778899),
-                            ),
-                          ),
-                          Center(
-                            child: Icon(
-                              Icons.add_a_photo,
-                              size: 80.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Container(
-                        height: 160.0,
-                        width: 160.0,
-                        decoration: new BoxDecoration(
-                          color: const Color(0xff7c94b6),
-                          image: new DecorationImage(
-                            image: new ExactAssetImage(_image.path),
-                            fit: BoxFit.cover,
-                          ),
-                          border: Border.all(color: Colors.red, width: 5.0),
-                          borderRadius:
-                              new BorderRadius.all(const Radius.circular(80.0)),
-                        ),
-                      ),
-              ),
-            ),
             SizedBox(
               height: 8.0,
             ),
@@ -116,9 +86,17 @@ class _TeamFormState extends State<TeamForm> {
             GestureDetector(
               onTap: () {
                 if (_formKey.currentState.validate()) {
-                  _firestore.collection('teams').add({
-                    'name': teamName,
-                  });
+                  _firestore
+                      .collection("users")
+                      .doc(loggedInUser.email)
+                      .collection('teams')
+                      .add({
+                        'name': teamName,
+                      })
+                      .then((docRef) =>
+                          print("Document written with ID: ${docRef.id}"))
+                      .catchError(
+                          (error) => print("Error adding document: $error"));
                   Navigator.push(
                     context,
                     MaterialPageRoute(

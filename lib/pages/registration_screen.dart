@@ -4,7 +4,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:scout/components/rounded_button.dart';
 import 'package:scout/constants.dart';
 
-import 'chat_screen.dart';
+import 'home_page.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = 'registration_screen';
@@ -80,7 +80,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         await _auth.createUserWithEmailAndPassword(
                             email: email, password: password);
                     if (userCredential != null) {
-                      Navigator.pushNamed(context, ChatScreen.id);
+                      Navigator.pushNamed(context, ScoutHome.id);
                     }
 
                     setState(() {

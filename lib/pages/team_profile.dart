@@ -9,10 +9,12 @@ class TeamProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('team: $id, $name');
     return ReusableCard(
+      backgroundColour: Colors.white38,
       borderColour: Colors.indigo,
       onPress: () {
-        print('selecionou: $id');
+        print('selecionou time: $id');
       },
       cardChild: Padding(
         padding: const EdgeInsets.all(8.0),

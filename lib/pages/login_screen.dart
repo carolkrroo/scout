@@ -4,7 +4,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:scout/components/rounded_button.dart';
 import 'package:scout/constants.dart';
 
-import 'chat_screen.dart';
+import 'home_page.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -77,8 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     UserCredential userCredential =
                         await _auth.signInWithEmailAndPassword(
                             email: email, password: password);
+                    print('userCredential: $userCredential');
                     if (userCredential != null) {
-                      Navigator.pushNamed(context, ChatScreen.id);
+                      Navigator.pushNamed(context, ScoutHome.id);
                     }
 
                     setState(() {
