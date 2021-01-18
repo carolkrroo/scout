@@ -69,8 +69,9 @@ class TeamsList extends StatelessWidget {
           child: ListView.builder(
             itemBuilder: (context, index) {
               return TeamProfile(
-                id: teams[index].id,
+                teamId: teams[index].id,
                 name: teams[index].data()['name'],
+                imageUrl: teams[index].data()['imageUrl'],
               );
             },
             itemCount: teams.length,

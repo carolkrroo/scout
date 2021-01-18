@@ -1,25 +1,58 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// Widget to capture and crop the image
 class ImagePickerButton extends StatefulWidget {
-  ImagePickerButton();
+  final ImageFileCallback onFileCropped;
+  String imageUrl;
 
-  @override
-  _ImagePickerButtonState createState() => _ImagePickerButtonState();
+  ImagePickerButton({this.onFileCropped, this.imageUrl});
+  createState() => _ImagePickerButtonState();
 }
 
 class _ImagePickerButtonState extends State<ImagePickerButton> {
-  PickedFile _imageFile;
+  bool hasImage = false;
+
+  /// Active image file
+  File _imageFile;
+
   dynamic _pickImageError;
-  String _retrieveDataError;
 
   final ImagePicker _picker = ImagePicker();
 
-  void _onImageButtonPressed({BuildContext context}) async {
+  /// Cropper plugin
+  Future<void> _cropImage(PickedFile image) async {
+    File cropped = await ImageCropper.cropImage(
+      sourcePath: image.path,
+      androidUiSettings: AndroidUiSettings(
+        toolbarColor: Colors.indigo,
+        toolbarWidgetColor: Colors.white,
+        toolbarTitle: 'Crop It',
+      ),
+      cropStyle: CropStyle.circle,
+      aspectRatio: CropAspectRatio(
+        ratioX: 1.0,
+        ratioY: 1.0,
+      ),
+      maxWidth: 80,
+      maxHeight: 80,
+    );
+
+    setState(() {
+      print('cropped: $cropped');
+      _imageFile = cropped ?? image.path;
+      print('image: $_imageFile');
+      widget.onFileCropped(_imageFile);
+      hasImage = true;
+    });
+  }
+
+  /// Select an image via gallery or camera
+  Future<void> _pickImage({BuildContext context}) async {
     await _displayPickImageDialog(context, (ImageSource source) async {
       try {
         final pickedFile = await _picker.getImage(
@@ -28,7 +61,7 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
           maxHeight: 512,
         );
         setState(() {
-          _imageFile = pickedFile;
+          _cropImage(pickedFile);
         });
       } catch (e) {
         setState(() {
@@ -38,93 +71,16 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
     });
   }
 
-  @override
-  void deactivate() {
-    super.deactivate();
+  /// Remove image
+  void _clear() {
+    setState(() => _imageFile = null);
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Widget _previewImage() {
-    final Text retrieveError = _getRetrieveErrorWidget();
-    if (retrieveError != null) {
-      return retrieveError;
-    }
-    print('_imageFile: $_imageFile');
-    if (_imageFile != null) {
-      print('kIsWeb: $kIsWeb');
-      if (kIsWeb) {
-        // Why network?
-        // See https://pub.dev/packages/image_picker#getting-ready-for-the-web-platform
-        print('imageFile: ${_imageFile.path}');
-        return CircleAvatar(
-          child: Image.network(_imageFile.path),
-        );
-      } else {
-        return Semantics(
-          child: CircleAvatar(
-            child: Image.file(
-              File(_imageFile.path),
-              fit: BoxFit.cover,
-            ),
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.black,
-            radius: 70.0,
-          ),
-          label: 'image_picker_example_picked_image',
-        );
-      }
-    } else if (_pickImageError != null) {
-      return Text(
-        'Pick image error: $_pickImageError',
-        textAlign: TextAlign.center,
-      );
-    } else {
-      return SizedBox(
-        width: 180.0,
-        height: 180.0,
-        child: Stack(
-          alignment: AlignmentDirectional.bottomEnd,
-          children: <Widget>[
-            Center(
-              child: new CircleAvatar(
-                radius: 80.0,
-                backgroundColor: const Color(0xFF778899),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                _onImageButtonPressed(context: context);
-              },
-              child: CircleAvatar(
-                child: Icon(
-                  Icons.add_a_photo,
-                  size: 30.0,
-                  color: Colors.white,
-                ),
-                radius: 33.0,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  Future<void> retrieveLostData() async {
-    final LostData response = await _picker.getLostData();
-    if (response.isEmpty) {
-      return;
-    }
-    if (response.file != null) {
-      setState(() {
-        _imageFile = response.file;
-      });
-    } else {
-      _retrieveDataError = response.exception.code;
+  void initState() {
+    super.initState();
+    if (_imageFile != null || widget.imageUrl != null) {
+      hasImage = true;
     }
   }
 
@@ -132,193 +88,96 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Center(
-          child: !kIsWeb && defaultTargetPlatform == TargetPlatform.android
-              ? FutureBuilder<void>(
-                  future: retrieveLostData(),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<void> snapshot) {
-                    print(
-                        'snapshot.connectionState: ${snapshot.connectionState}');
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.none:
-                      case ConnectionState.waiting:
-                        return GestureDetector(
-                          onTap: () {
-                            // _onImageButtonPressed(ImageSource.camera,
-                            //     context: context);
-                          },
-                          child: Center(
-                            child: Stack(
-                              alignment: AlignmentDirectional.center,
-                              children: <Widget>[
-                                Center(
-                                  child: new CircleAvatar(
-                                    radius: 80.0,
-                                    backgroundColor: const Color(0xFF778899),
-                                  ),
-                                ),
-                                Center(
-                                  child: Icon(
-                                    Icons.add_a_photo_outlined,
-                                    size: 80.0,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      case ConnectionState.done:
-                        return _previewImage();
-                      default:
-                        if (snapshot.hasError) {
-                          return Text(
-                            'Pick image error: ${snapshot.error}}',
-                            textAlign: TextAlign.center,
-                          );
-                        } else {
-                          return GestureDetector(
-                            onTap: () {
-                              // _onImageButtonPressed(ImageSource.camera,
-                              //     context: context);
-                            },
-                            child: Center(
-                              child: Stack(
-                                alignment: AlignmentDirectional.center,
-                                children: <Widget>[
-                                  Center(
-                                    child: new CircleAvatar(
-                                      radius: 80.0,
-                                      backgroundColor: const Color(0xFF778899),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Icon(
-                                      Icons.add_a_photo,
-                                      size: 80.0,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
-                    }
-                  },
-                )
-              : _previewImage(),
+        SizedBox(
+          width: 180.0,
+          height: 180.0,
+          child: Stack(
+            alignment: AlignmentDirectional.bottomEnd,
+            children: <Widget>[
+              SizedBox(
+                width: 160.0,
+                height: 160.0,
+                child: CircularProgressIndicator(
+                  strokeWidth: 4.0,
+                  value: 1.0,
+                  valueColor: hasImage
+                      ? AlwaysStoppedAnimation<Color>(Colors.indigo)
+                      : AlwaysStoppedAnimation<Color>(Colors.red),
+                ),
+              ),
+              hasImage
+                  ? CircleAvatar(
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile)
+                          : NetworkImage(widget.imageUrl +
+                              '&' +
+                              DateTime.now().toString()),
+                      backgroundColor: Color(0xFFC5CAE9),
+                      radius: 80.0,
+                    )
+                  : CircleAvatar(
+                      radius: 80.0,
+                      backgroundColor: Color(0xFFC5CAE9),
+                    ),
+              GestureDetector(
+                onTap: () {
+                  _pickImage(context: context);
+                },
+                child: CircleAvatar(
+                  child: Icon(
+                    hasImage ? Icons.edit : Icons.add_a_photo,
+                  ),
+                  radius: 24.0,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
+}
 
-  Text _getRetrieveErrorWidget() {
-    if (_retrieveDataError != null) {
-      final Text result = Text(_retrieveDataError);
-      _retrieveDataError = null;
-      return result;
-    }
-    return null;
-  }
-
-  Future<void> _displayPickImageDialog(
-      BuildContext context, OnPickImageCallback onPick) async {
-    return showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Wrap(
-              children: <Widget>[
-                Text(
-                  'Escudo do time',
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+Future<void> _displayPickImageDialog(
+    BuildContext context, OnPickImageCallback onPick) async {
+  return showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      return Container(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Wrap(
+            children: <Widget>[
+              Text(
+                'Escudo do time',
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
                 ),
-                ListTile(
-                  leading: new Icon(Icons.camera_alt),
-                  title: new Text('Camera'),
-                  onTap: () {
-                    print('Take a Photo');
-                    onPick(ImageSource.camera);
-                    Navigator.of(context).pop();
-                  },
-                ),
-                ListTile(
-                  leading: new Icon(Icons.photo_library),
-                  title: new Text('Gallery'),
-                  onTap: () {
-                    print('Pick Image from gallery');
-                    onPick(ImageSource.gallery);
-                    Navigator.of(context).pop();
-                  },
-                ),
-                Row(
-                  children: [
-                    FlatButton(
-                      color: Colors.white,
-                      textColor: Colors.black,
-                      padding: EdgeInsets.all(16.0),
-                      splashColor: Colors.white38,
-                      onPressed: () {
-                        print('Take a Photo');
-                        onPick(ImageSource.camera);
-                        Navigator.of(context).pop();
-                      },
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.camera_alt,
-                            size: 36.0,
-                          ),
-                          Text(
-                            'Camera',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    FlatButton(
-                      color: Colors.white,
-                      textColor: Colors.black,
-                      padding: EdgeInsets.all(16.0),
-                      splashColor: Colors.white38,
-                      onPressed: () {
-                        print('Pick Image from gallery');
-                        onPick(ImageSource.gallery);
-                        Navigator.of(context).pop();
-                      },
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.photo_library,
-                            size: 36.0,
-                          ),
-                          Text(
-                            'Gallery',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              ListTile(
+                leading: new Icon(Icons.camera_alt),
+                title: new Text('Câmera'),
+                onTap: () {
+                  onPick(ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: new Icon(Icons.photo_library),
+                title: new Text('Galeria de Fotos'),
+                onTap: () {
+                  onPick(ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
 }
 
 typedef void OnPickImageCallback(ImageSource source);
+typedef ImageFileCallback(File image);

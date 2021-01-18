@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const kBottomContainerHeight = 80.0;
+const kBottomContainerHeight = 64.0;
 const kActiveCardColour = Colors.deepOrange;
 const kInactiveCardColour = Colors.orange;
 // const kActiveCardColour = Color(0xFF111328);
@@ -22,7 +22,7 @@ const kNumberTextStyle = TextStyle(
 const kSendButtonTextStyle = TextStyle(
   color: Colors.lightBlueAccent,
   fontWeight: FontWeight.bold,
-  fontSize: 18.0,
+  fontSize: 16.0,
 );
 
 const kMessageTextFieldDecoration = InputDecoration(

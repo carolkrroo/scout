@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:scout/components/reusable_card.dart';
+import 'package:scout/pages/team_form.dart';
 
 class TeamProfile extends StatelessWidget {
-  TeamProfile({@required this.id, @required this.name});
+  static const String id = 'team_profile';
 
-  final String id;
+  TeamProfile(
+      {@required this.teamId, @required this.name, @required this.imageUrl});
+
+  final String teamId;
   final String name;
+  final String imageUrl;
 
   @override
   Widget build(BuildContext context) {
-    print('team: $id, $name');
     return ReusableCard(
       backgroundColour: Colors.white38,
       borderColour: Colors.indigo,
       onPress: () {
-        print('selecionou time: $id');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TeamForm(
+              teamId: teamId,
+              name: name,
+              imageUrl: imageUrl,
+            ),
+          ),
+        );
       },
       cardChild: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -24,10 +37,8 @@ class TeamProfile extends StatelessWidget {
             CircleAvatar(
               backgroundColor: Colors.orange,
               foregroundColor: Colors.black,
-              child: Text('CP',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)),
-              backgroundImage: AssetImage('assets/img/Krro1.jpg'),
+              backgroundImage:
+                  NetworkImage(imageUrl + '&' + DateTime.now().toString()),
               radius: 70.0,
             ),
             Text(
@@ -52,5 +63,3 @@ class TeamProfile extends StatelessWidget {
     );
   }
 }
-// NetworkImage(
-// 'https://pbs.twimg.com/profile_images/529600536551493632/aIrw5Ge7_400x400.jpeg'),

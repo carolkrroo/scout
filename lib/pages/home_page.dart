@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,7 +14,6 @@ import 'package:scout/pages/welcome_screen.dart';
 import 'athlete_form.dart';
 import 'athlete_list_horizontal.dart';
 
-final _firestore = FirebaseFirestore.instance;
 User loggedInUser;
 
 class ScoutHome extends StatefulWidget {
@@ -31,7 +29,6 @@ class _ScoutHomeState extends State<ScoutHome> {
   @override
   void initState() {
     super.initState();
-    print('initState');
     getCurrentUser();
   }
 
@@ -40,27 +37,14 @@ class _ScoutHomeState extends State<ScoutHome> {
       final user = _auth.currentUser;
       if (user != null) {
         loggedInUser = user;
-        print('loggedInUser: $loggedInUser');
-        // _firestore
-        //     .collection("users")
-        //     .doc(loggedInUser.email)
-        //     .collection("teams")
-        //     .get()
-        //     .then((value) {
-        //   print('size: ${value.size}');
-        //   if (value.size > 0) {
-        //     hasTeams = true;
-        //   }
-        // });
       }
     } catch (e) {
-      print('e: $e');
+      print('Erro ao solicitar sessão do usuário: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print('entrou no builder');
     return Scaffold(
       appBar: AppBar(
         title: Text("Scout"),
@@ -143,116 +127,114 @@ class _ScoutHomeState extends State<ScoutHome> {
           ],
         ),
       ),
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Times',
-                      style: TextStyle(
-                        fontFamily: 'BarlowSemiCondensed',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 40.0,
-                      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'TIMES',
+                    style: TextStyle(
+                      fontFamily: 'BarlowSemiCondensed',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24.0,
                     ),
-                    Row(
-                      children: [
-                        FlatButton(
-                          child: Text(
-                            "VER TODOS",
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TeamsScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        RoundIconButton(
-                          colour: Colors.red,
-                          icon: Icons.add,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TeamForm(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                TeamsListHorizontal(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Atletas',
-                      style: TextStyle(
-                        fontFamily: 'BarlowSemiCondensed',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 40.0,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        FlatButton(
-                          child: Text(
-                            "VER TODOS",
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AthletesScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        RoundIconButton(
-                          colour: Colors.red,
-                          icon: Icons.add,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AthleteForm(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                AthletesListHorizontal(),
-                FlatButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MatchForm(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'CRIAR PARTIDA',
-                    style: kLargeButtonTextStyle,
                   ),
-                  color: kBottomContainerColour,
+                  Row(
+                    children: [
+                      FlatButton(
+                        child: Text(
+                          "VER TODOS",
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TeamsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      RoundIconButton(
+                        colour: Colors.red,
+                        icon: Icons.add,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TeamForm(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              TeamsListHorizontal(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'ATLETAS',
+                    style: TextStyle(
+                      fontFamily: 'BarlowSemiCondensed',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24.0,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      FlatButton(
+                        child: Text(
+                          "VER TODOS",
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AthletesScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      RoundIconButton(
+                        colour: Colors.red,
+                        icon: Icons.add,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AthleteForm(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              AthletesListHorizontal(),
+              FlatButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MatchForm(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'CRIAR PARTIDA',
+                  style: kLargeButtonTextStyle,
                 ),
-              ],
-            ),
+                color: kBottomContainerColour,
+              ),
+            ],
           ),
         ),
       ),

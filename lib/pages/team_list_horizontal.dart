@@ -32,7 +32,6 @@ class TeamsListHorizontal extends StatelessWidget {
         }
 
         final teams = snapshot.data.docs;
-        print('teams: ${teams.isEmpty}');
         if (teams.isEmpty) {
           return ReusableCard(
             backgroundColour: Colors.white38,
@@ -56,9 +55,9 @@ class TeamsListHorizontal extends StatelessWidget {
             child: ListView.builder(
               itemBuilder: (context, index) {
                 return TeamProfile(
-                  id: teams[index].id,
-                  name: teams[index].data()['name'],
-                );
+                    teamId: teams[index].id,
+                    name: teams[index].data()['name'],
+                    imageUrl: teams[index].data()['imageUrl']);
               },
               itemCount: teams.length,
               scrollDirection: Axis.horizontal,
