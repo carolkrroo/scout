@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:scout/components/rounded_button.dart';
 import 'package:scout/constants.dart';
+import 'package:scout/models/user-login.dart';
 
 import 'home_page.dart';
 
@@ -14,17 +15,29 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
+  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
+
   bool showSpinner = false;
-  String email;
-  String password;
+
+  UserLogin user = UserLogin();
+
+  _showSnackBar(String message) {
+    var _snackBar = SnackBar(
+      content: Text(message),
+    );
+    _globalKey.currentState.showSnackBar(_snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _globalKey,
       backgroundColor: Colors.white,
-      body: Builder(
-        builder: (context) => ModalProgressHUD(
-          inAsyncCall: showSpinner,
+      body: ModalProgressHUD(
+        inAsyncCall: showSpinner,
+        child: Form(
+          key: _formKey,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
@@ -43,68 +56,82 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 48.0,
                 ),
-                TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    email = value;
-                  },
+                TextFormField(
                   decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Enter your email',
+                    hintText: 'Insira seu e-mail',
+                    labelText: 'E-mail',
                   ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Campo obrigatório';
+                    }
+                    return null;
+                  },
+                  onSaved: (String value) {
+                    setState(() {
+                      user.email = value;
+                    });
+                  },
                 ),
                 SizedBox(
-                  height: 8.0,
+                  height: 16.0,
                 ),
-                TextField(
+                TextFormField(
                   obscureText: true,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    password = value;
-                  },
                   decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Enter your password',
+                    hintText: 'Insira sua senha',
+                    labelText: 'Senha',
                   ),
+                  keyboardType: TextInputType.text,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Campo obrigatório';
+                    }
+                    return null;
+                  },
+                  onSaved: (String value) {
+                    setState(() {
+                      user.password = value;
+                    });
+                  },
                 ),
                 SizedBox(
                   height: 24.0,
                 ),
                 RoundedButton(
-                  title: 'Log In',
+                  title: 'Entrar',
                   colour: Colors.lightBlueAccent,
                   onPressed: () async {
-                    setState(() {
-                      showSpinner = true;
-                    });
-                    try {
-                      UserCredential userCredential =
-                          await _auth.signInWithEmailAndPassword(
-                              email: email, password: password);
-                      print('userCredential: $userCredential');
-                      if (userCredential != null) {
-                        Navigator.pushNamed(context, ScoutHome.id);
-                      }
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'user-not-found') {
-                        print('No user found for that email.');
-                        Scaffold.of(context).showSnackBar(
-                          SnackBar(
-                            content:
-                                Text('Esse e-mail ainda não está cadastrado.'),
-                          ),
-                        );
-                      } else if (e.code == 'wrong-password') {
-                        print('Wrong password provided for that user.');
-                        Scaffold.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Senha está errada.'),
-                          ),
-                        );
-                      }
-                    } finally {
+                    if (_formKey.currentState.validate()) {
+                      _formKey.currentState.save();
                       setState(() {
-                        showSpinner = false;
+                        showSpinner = true;
                       });
+                      try {
+                        UserCredential userCredential =
+                            await _auth.signInWithEmailAndPassword(
+                                email: user.email, password: user.password);
+                        if (userCredential != null) {
+                          Navigator.pushNamed(context, ScoutHome.id);
+                        }
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'invalid-email') {
+                          _showSnackBar('Insira um e-mail válido.');
+                        } else if (e.code == 'user-not-found') {
+                          _showSnackBar('Usuário não encontrado.');
+                        } else if (e.code == 'wrong-password') {
+                          _showSnackBar('A senha está incorreta.');
+                        }
+                      } catch (e) {
+                        _showSnackBar('Ocorreu o erro: $e');
+                      } finally {
+                        setState(() {
+                          showSpinner = false;
+                        });
+                      }
+                    } else {
+                      _showSnackBar('Preencha os campos obrigatórios.');
                     }
                   },
                 ),

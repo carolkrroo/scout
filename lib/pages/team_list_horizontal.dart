@@ -7,20 +7,13 @@ import 'package:scout/components/icon_content.dart';
 import 'package:scout/components/reusable_card.dart';
 import 'package:scout/pages/team_form.dart';
 import 'package:scout/pages/team_profile.dart';
-
-import 'home_page.dart';
-
-final _firestore = FirebaseFirestore.instance;
+import 'package:scout/services/team_service.dart';
 
 class TeamsListHorizontal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
-      future: _firestore
-          .collection("users")
-          .doc(loggedInUser.email)
-          .collection('teams')
-          .get(),
+      future: TeamService().getTeams(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
@@ -57,7 +50,7 @@ class TeamsListHorizontal extends StatelessWidget {
                 return TeamProfile(
                     teamId: teams[index].id,
                     name: teams[index].data()['name'],
-                    imageUrl: teams[index].data()['imageUrl']);
+                    imageUrl: teams[index].data()['image_url']);
               },
               itemCount: teams.length,
               scrollDirection: Axis.horizontal,

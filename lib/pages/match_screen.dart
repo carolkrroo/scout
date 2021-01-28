@@ -84,7 +84,7 @@ class _MatchScreenState extends State<MatchScreen> {
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Text(
                             '6:0',
                             style: kLabelTextStyle,
@@ -102,7 +102,7 @@ class _MatchScreenState extends State<MatchScreen> {
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Text(
                             '5:1',
                             style: kLabelTextStyle,
@@ -120,7 +120,7 @@ class _MatchScreenState extends State<MatchScreen> {
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Text(
                             '4:2',
                             style: kLabelTextStyle,
@@ -138,7 +138,7 @@ class _MatchScreenState extends State<MatchScreen> {
                             ? kActiveCardColour
                             : kInactiveCardColour,
                         cardChild: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Text(
                             '5+1',
                             style: kLabelTextStyle,

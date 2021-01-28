@@ -8,21 +8,19 @@ import 'package:image_picker/image_picker.dart';
 /// Widget to capture and crop the image
 class ImagePickerButton extends StatefulWidget {
   final ImageFileCallback onFileCropped;
-  String imageUrl;
+  final String imageUrl;
+  final String dialogLabel;
 
-  ImagePickerButton({this.onFileCropped, this.imageUrl});
+  ImagePickerButton({this.onFileCropped, this.imageUrl, this.dialogLabel});
   createState() => _ImagePickerButtonState();
 }
 
 class _ImagePickerButtonState extends State<ImagePickerButton> {
+  final ImagePicker _picker = ImagePicker();
   bool hasImage = false;
 
   /// Active image file
   File _imageFile;
-
-  dynamic _pickImageError;
-
-  final ImagePicker _picker = ImagePicker();
 
   /// Cropper plugin
   Future<void> _cropImage(PickedFile image) async {
@@ -43,17 +41,16 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
     );
 
     setState(() {
-      print('cropped: $cropped');
       _imageFile = cropped ?? image.path;
-      print('image: $_imageFile');
       widget.onFileCropped(_imageFile);
       hasImage = true;
     });
   }
 
   /// Select an image via gallery or camera
-  Future<void> _pickImage({BuildContext context}) async {
-    await _displayPickImageDialog(context, (ImageSource source) async {
+  Future<void> _pickImage({BuildContext context, String dialogLabel}) async {
+    await _displayPickImageDialog(context, dialogLabel,
+        (ImageSource source) async {
       try {
         final pickedFile = await _picker.getImage(
           source: source,
@@ -63,10 +60,8 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
         setState(() {
           _cropImage(pickedFile);
         });
-      } catch (e) {
-        setState(() {
-          _pickImageError = e;
-        });
+      } catch (error) {
+        print("Error on picking image: $error");
       }
     });
   }
@@ -101,7 +96,7 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
                   strokeWidth: 4.0,
                   value: 1.0,
                   valueColor: hasImage
-                      ? AlwaysStoppedAnimation<Color>(Colors.indigo)
+                      ? AlwaysStoppedAnimation<Color>(Colors.blueAccent)
                       : AlwaysStoppedAnimation<Color>(Colors.red),
                 ),
               ),
@@ -121,7 +116,7 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
                     ),
               GestureDetector(
                 onTap: () {
-                  _pickImage(context: context);
+                  _pickImage(context: context, dialogLabel: widget.dialogLabel);
                 },
                 child: CircleAvatar(
                   child: Icon(
@@ -138,21 +133,22 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
   }
 }
 
-Future<void> _displayPickImageDialog(
-    BuildContext context, OnPickImageCallback onPick) async {
+Future<void> _displayPickImageDialog(BuildContext context, String dialogLabel,
+    OnPickImageCallback onPick) async {
   return showModalBottomSheet(
     context: context,
     builder: (context) {
       return Container(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(24.0),
           child: Wrap(
             children: <Widget>[
               Text(
-                'Escudo do time',
+                dialogLabel,
                 style: TextStyle(
-                  fontSize: 24.0,
+                  fontSize: 20.0,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
               ListTile(

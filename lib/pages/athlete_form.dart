@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scout/components/icon_content.dart';
-import 'package:scout/components/reusable_card.dart';
-import 'package:scout/components/round_icon_button.dart';
+import 'package:scout/components/image_picker_button.dart';
+import 'package:scout/components/rounded_button.dart';
 import 'package:scout/constants.dart';
 import 'package:scout/enums/gender.enum.dart';
 import 'package:scout/enums/players-positions.enum.dart';
-import 'package:scout/services/location.dart';
+import 'package:scout/models/athlete.dart';
+import 'package:scout/services/team_service.dart';
 
 import 'home_page.dart';
 
@@ -17,390 +18,350 @@ final _firestore = FirebaseFirestore.instance;
 class AthleteForm extends StatefulWidget {
   static const String id = 'athlete_form';
 
+  AthleteForm({
+    this.athleteId,
+    this.name,
+    this.lastName,
+    this.imageUrl,
+    this.position,
+    this.teamId,
+    this.gender,
+  });
+
+  final String athleteId;
+  final String name;
+  final String lastName;
+  final String imageUrl;
+  final String position;
+  final String teamId;
+  final String gender;
+
   @override
   _AthleteFormState createState() => _AthleteFormState();
 }
 
 class _AthleteFormState extends State<AthleteForm> {
-  Gender selectedGender = Gender.female;
-  String name = '';
-  String lastName = '';
-  int height = 180;
-  int weight = 60;
-  int age = 18;
-  PlayersPositions position = PlayersPositions.goalkeeper;
-  String teamId = 'CSKA';
-
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  //
-  // Note: This is a `GlobalKey<FormState>`,
-  // not a GlobalKey<AthleteFormState>.
+  var _athlete = Athlete();
+  final firebase_storage.FirebaseStorage _storage =
+      firebase_storage.FirebaseStorage.instanceFor(
+          bucket: 'gs://scout-d7c93.appspot.com');
   final _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
+
+  List<DropdownMenuItem> _positions = List<DropdownMenuItem>();
+  List<DropdownMenuItem> _teams = List<DropdownMenuItem>();
+  List<DropdownMenuItem> _genders = List<DropdownMenuItem>();
 
   void initState() {
     super.initState();
-
-    getLocation();
+    _loadTeams();
+    _loadPositions();
+    _loadGenders();
+    _athlete.athleteId = widget.athleteId;
+    _athlete.name = widget.name;
+    _athlete.lastName = widget.lastName;
+    _athlete.imageUrl = widget.imageUrl;
+    _athlete.position = widget.position;
+    _athlete.gender = widget.gender;
   }
 
-  void getLocation() async {
-    Location location = Location();
-    await location.getCurrentLocation();
+  _loadTeams() async {
+    var teams = await TeamService().getTeamsList();
+    teams.forEach((value) {
+      _teams.add(DropdownMenuItem(
+        child: Text(value.data()['name']),
+        value: value.id,
+      ));
+    });
+    setState(() {
+      _athlete.teamId = widget.teamId;
+    });
+  }
+
+  _loadPositions() async {
+    PlayersPositions.values.forEach((value) {
+      _positions.add(DropdownMenuItem(
+        child: Text(PlayersPositionsName[value]),
+        value: describeEnum(value),
+      ));
+    });
+  }
+
+  _loadGenders() async {
+    Gender.values.forEach((value) {
+      _genders.add(DropdownMenuItem(
+        child: Text(GenderName[value]),
+        value: describeEnum(value),
+      ));
+    });
+  }
+
+  _showSnackBar(String message) {
+    var _snackBar = SnackBar(
+      content: Text(message),
+    );
+    _globalKey.currentState.showSnackBar(_snackBar);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
     return Scaffold(
+      key: _globalKey,
       appBar: AppBar(
-        title: Text("Athlete Form"),
+        title: Text(
+            _athlete.athleteId == null ? "Registrar Atleta" : "Editar Atleta"),
         elevation: 0.7,
       ),
       body: Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          'NAME',
-                          style: kLabelTextStyle,
-                        ),
-                        TextField(
-                          keyboardType: TextInputType.name,
-                          textAlign: TextAlign.center,
-                          onChanged: (value) {
-                            name = value;
-                          },
-                          decoration: kTextFieldDecoration.copyWith(
-                              hintText: 'Enter the athlete name'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          'LAST NAME',
-                          style: kLabelTextStyle,
-                        ),
-                        TextField(
-                          keyboardType: TextInputType.name,
-                          textAlign: TextAlign.center,
-                          onChanged: (value) {
-                            lastName = value;
-                          },
-                          decoration: kTextFieldDecoration.copyWith(
-                              hintText: 'Enter the athlete last name'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Row(
+        child: SingleChildScrollView(
+          child: Container(
+            height: MediaQuery.of(context).size.height - 80.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Text(
-                  'Posição',
-                  style: TextStyle(
-                    fontFamily: 'BarlowSemiCondensed',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24.0,
-                  ),
-                ),
-                DropdownButton<PlayersPositions>(
-                  value: position,
-                  icon: Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.indigo,
-                  ),
-                  onChanged: (PlayersPositions newValue) {
-                    setState(() {
-                      position = newValue;
-                    });
-                  },
-                  items: PlayersPositions.values
-                      .map<DropdownMenuItem<PlayersPositions>>(
-                          (PlayersPositions value) {
-                    return DropdownMenuItem<PlayersPositions>(
-                      value: value,
-                      child: Text(value.toString()),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Text(
-                  'Time',
-                  style: TextStyle(
-                    fontFamily: 'BarlowSemiCondensed',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24.0,
-                  ),
-                ),
-                DropdownButton<String>(
-                  value: teamId,
-                  icon: Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.indigo,
-                  ),
-                  onChanged: (String newValue) {
-                    setState(() {
-                      teamId = newValue;
-                    });
-                  },
-                  items: <String>['CSKA', 'GYÖRI AUDI ETO KC']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: ReusableCard(
-                      backgroundColour: selectedGender == Gender.male
-                          ? kActiveCardColour
-                          : kInactiveCardColour,
-                      cardChild: IconContent(
-                        icon: FontAwesomeIcons.mars,
-                        label: 'MALE',
-                      ),
-                      onPress: () {
-                        setState(() {
-                          selectedGender = Gender.male;
-                        });
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: ReusableCard(
-                      backgroundColour: selectedGender == Gender.female
-                          ? kActiveCardColour
-                          : kInactiveCardColour,
-                      cardChild: IconContent(
-                        icon: FontAwesomeIcons.venus,
-                        label: 'FEMALE',
-                      ),
-                      onPress: () {
-                        setState(() {
-                          selectedGender = Gender.female;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ReusableCard(
-                backgroundColour: kActiveCardColour,
-                cardChild: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'HEIGHT',
-                      style: kLabelTextStyle,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: <Widget>[
-                        Text(
-                          height.toString(),
-                          style: kNumberTextStyle,
-                        ),
-                        Text(
-                          'cm',
-                          style: kLabelTextStyle,
-                        ),
-                      ],
-                    ),
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: Colors.white,
-                        inactiveTrackColor: Color(0xFF8D8E98),
-                        thumbColor: Color(0xFFEB1555),
-                        overlayColor: Color(0x29EB1555),
-                        thumbShape:
-                            RoundSliderThumbShape(enabledThumbRadius: 15.0),
-                        overlayShape:
-                            RoundSliderOverlayShape(overlayRadius: 30.0),
-                      ),
-                      child: Slider(
-                        value: height.toDouble(),
-                        min: 120.0,
-                        max: 220.0,
-                        onChanged: (double newValue) {
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      ImagePickerButton(
+                        dialogLabel: 'Foto de perfil',
+                        imageUrl: _athlete.imageUrl,
+                        onFileCropped: (value) {
                           setState(() {
-                            height = newValue.round();
+                            _athlete.image = value;
                           });
                         },
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: ReusableCard(
-                      backgroundColour: kActiveCardColour,
-                      cardChild: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      SizedBox(
+                        height: 8.0,
+                      ),
+                      Row(
                         children: <Widget>[
-                          Text(
-                            'WEIGHT',
-                            style: kLabelTextStyle,
-                          ),
-                          Text(
-                            weight.toString(),
-                            style: kNumberTextStyle,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              RoundIconButton(
-                                icon: FontAwesomeIcons.minus,
-                                onPressed: () {
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
+                              child: TextFormField(
+                                decoration: kTextFieldDecoration.copyWith(
+                                  hintText: 'Insira o primeiro nome do atleta',
+                                  labelText: 'Nome',
+                                ),
+                                keyboardType: TextInputType.text,
+                                initialValue: widget.name,
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Campo obrigatório';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (String value) {
                                   setState(() {
-                                    weight--;
+                                    _athlete.name = value;
                                   });
                                 },
                               ),
-                              SizedBox(
-                                width: 10.0,
-                              ),
-                              RoundIconButton(
-                                icon: FontAwesomeIcons.plus,
-                                onPressed: () {
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
+                              child: TextFormField(
+                                decoration: kTextFieldDecoration.copyWith(
+                                  hintText: 'Insira o sobrenome do atleta',
+                                  labelText: 'Sobrenome',
+                                ),
+                                keyboardType: TextInputType.text,
+                                initialValue: widget.lastName,
+                                onSaved: (String value) {
                                   setState(() {
-                                    weight++;
+                                    _athlete.lastName = value;
                                   });
                                 },
                               ),
-                            ],
-                          )
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ReusableCard(
-                      backgroundColour: kActiveCardColour,
-                      cardChild: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Row(
                         children: <Widget>[
-                          Text(
-                            'AGE',
-                            style: kLabelTextStyle,
-                          ),
-                          Text(
-                            age.toString(),
-                            style: kNumberTextStyle,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              RoundIconButton(
-                                icon: FontAwesomeIcons.minus,
-                                onPressed: () {
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
+                              child: DropdownButtonFormField(
+                                decoration: kTextFieldDecoration.copyWith(
+                                  labelText: 'Gênero',
+                                ),
+                                value: _athlete.gender,
+                                items: _genders,
+                                onChanged: (value) {
                                   setState(() {
-                                    age--;
+                                    _athlete.gender = value;
                                   });
                                 },
-                              ),
-                              SizedBox(
-                                width: 10.0,
-                              ),
-                              RoundIconButton(
-                                icon: FontAwesomeIcons.plus,
-                                onPressed: () {
-                                  setState(() {
-                                    age++;
-                                  });
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Campo obrigatório';
+                                  }
+                                  return null;
                                 },
                               ),
-                            ],
-                          )
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
+                              child: DropdownButtonFormField(
+                                decoration: kTextFieldDecoration.copyWith(
+                                  labelText: 'Posição',
+                                ),
+                                value: widget.position,
+                                items: _positions,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _athlete.position = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Campo obrigatório';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                if (_formKey.currentState.validate()) {
-                  _firestore
-                      .collection("users")
-                      .doc(loggedInUser.email)
-                      .collection('athletes')
-                      .add({
-                        'name': name,
-                        'last_name': lastName,
-                        'gender': selectedGender.toString(),
-                        'height': height,
-                        'position': position.toString(),
-                        'team_id': teamId,
-                        'weight': weight
-                      })
-                      .then((docRef) =>
-                          print("Document written with ID: ${docRef.id}"))
-                      .catchError(
-                          (error) => print("Error adding document: $error"));
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScoutHome(),
-                    ),
-                  );
-                }
-              },
-              child: Container(
-                child: Center(
-                  child: Text(
-                    'Submit',
-                    style: kLargeButtonTextStyle,
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: DropdownButtonFormField(
+                          decoration: kTextFieldDecoration.copyWith(
+                            labelText: 'Time',
+                          ),
+                          value: _athlete.teamId,
+                          items: _teams,
+                          onChanged: (value) {
+                            setState(() {
+                              _athlete.teamId = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Campo obrigatório';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      // Row(
+                      //   children: <Widget>[
+                      //     ReusableCard(
+                      //       backgroundColour: _athlete.gender == Gender.male
+                      //           ? kActiveCardColour
+                      //           : kInactiveCardColour,
+                      //       cardChild: IconContent(
+                      //         icon: FontAwesomeIcons.mars,
+                      //         label: 'MALE',
+                      //       ),
+                      //       onPress: () {
+                      //         setState(() {
+                      //           _athlete.gender = Gender.male.toString();
+                      //         });
+                      //       },
+                      //     ),
+                      //     ReusableCard(
+                      //       backgroundColour: _athlete.gender == Gender.female
+                      //           ? kActiveCardColour
+                      //           : kInactiveCardColour,
+                      //       cardChild: IconContent(
+                      //         icon: FontAwesomeIcons.venus,
+                      //         label: 'FEMALE',
+                      //       ),
+                      //       onPress: () {
+                      //         setState(() {
+                      //           _athlete.gender = Gender.female.toString();
+                      //         });
+                      //       },
+                      //     ),
+                      //   ],
+                      // ),
+                    ],
                   ),
                 ),
-                color: kBottomContainerColour,
-                margin: EdgeInsets.only(top: 10.0),
-                padding: EdgeInsets.only(bottom: 20.0),
-                width: double.infinity,
-                height: kBottomContainerHeight,
-              ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: RoundedButton(
+                    title: 'Salvar',
+                    colour: Colors.indigo,
+                    onPressed: () async {
+                      if (_formKey.currentState.validate() &&
+                          (_athlete.image != null ||
+                              _athlete.imageUrl != null)) {
+                        _formKey.currentState.save();
+                        try {
+                          if (widget.athleteId == null) {
+                            DocumentReference docRef = await _firestore
+                                .collection("users")
+                                .doc(loggedInUser.email)
+                                .collection('athletes')
+                                .add(
+                              {
+                                'created_at': DateTime.now(),
+                                'name': widget.name,
+                                'last_name': widget.lastName,
+                                'gender': _athlete.gender,
+                                'position': widget.position,
+                                'team_id': widget.teamId,
+                              },
+                            );
+                            setState(() {
+                              _athlete.athleteId = docRef.id;
+                            });
+                          }
+                          if (_athlete.image != null) {
+                            await _storage
+                                .ref()
+                                .child(widget.athleteId)
+                                .putFile(_athlete.image);
+                          }
+                          await _firestore
+                              .collection("users")
+                              .doc(loggedInUser.email)
+                              .collection("athletes")
+                              .doc(_athlete.athleteId)
+                              .update(
+                            {
+                              'updated_at': DateTime.now(),
+                              'name': _athlete.name,
+                              'last_name': _athlete.lastName,
+                              'gender': _athlete.gender,
+                              'position': _athlete.position,
+                              'team_id': _athlete.teamId,
+                              "image_url":
+                                  'https://firebasestorage.googleapis.com/v0/b/scout-d7c93.appspot.com/o/${_athlete.athleteId}?alt=media',
+                            },
+                          );
+                        } on firebase_storage.FirebaseException catch (error) {
+                          print("Erro ao salvar Atleta: $error");
+                          _showSnackBar('Erro ao salvar Atleta.');
+                        } finally {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScoutHome(),
+                            ),
+                          );
+                        }
+                      } else {
+                        _showSnackBar('Preencha os campos obrigatórios.');
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

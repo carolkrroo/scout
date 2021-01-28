@@ -4,21 +4,15 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:scout/components/icon_content.dart';
 import 'package:scout/components/reusable_card.dart';
 import 'package:scout/pages/athlete_form.dart';
+import 'package:scout/services/athlete_service.dart';
 
 import 'athlete_profile.dart';
-import 'home_page.dart';
-
-final _firestore = FirebaseFirestore.instance;
 
 class AthletesListHorizontal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
-      future: _firestore
-          .collection("users")
-          .doc(loggedInUser.email)
-          .collection('athletes')
-          .get(),
+      future: AthleteService().getAthletes(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
@@ -29,7 +23,6 @@ class AthletesListHorizontal extends StatelessWidget {
           );
         }
         final athletes = snapshot.data.docs;
-        print('athletes: ${athletes.isEmpty}');
         if (athletes.isEmpty) {
           return ReusableCard(
             backgroundColour: Colors.black12,
@@ -53,9 +46,13 @@ class AthletesListHorizontal extends StatelessWidget {
             child: ListView.builder(
               itemBuilder: (context, index) {
                 return AthleteProfile(
-                  id: athletes[index].id,
+                  athleteId: athletes[index].id,
                   name: athletes[index].data()['name'],
+                  lastName: athletes[index].data()['last_name'],
                   position: athletes[index].data()['position'],
+                  imageUrl: athletes[index].data()['image_url'],
+                  teamId: athletes[index].data()['team_id'],
+                  gender: athletes[index].data()['gender'],
                 );
               },
               itemCount: athletes.length,

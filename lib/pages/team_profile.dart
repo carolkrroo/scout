@@ -30,15 +30,16 @@ class TeamProfile extends StatelessWidget {
         );
       },
       cardChild: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             CircleAvatar(
               backgroundColor: Colors.orange,
               foregroundColor: Colors.black,
-              backgroundImage:
-                  NetworkImage(imageUrl + '&' + DateTime.now().toString()),
+              backgroundImage: imageUrl != null
+                  ? NetworkImage(imageUrl + '&' + DateTime.now().toString())
+                  : AssetImage('assets/img/Krro1.jpg'),
               radius: 70.0,
             ),
             Text(

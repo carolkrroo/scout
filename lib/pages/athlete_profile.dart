@@ -1,34 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:scout/components/reusable_card.dart';
+import 'package:scout/pages/athlete_form.dart';
 
 class AthleteProfile extends StatelessWidget {
-  AthleteProfile({this.id, this.name, this.position});
+  static const String id = 'athlete_profile';
 
-  final String id;
+  AthleteProfile({
+    this.athleteId,
+    this.name,
+    this.lastName,
+    this.position,
+    this.imageUrl,
+    this.teamId,
+    this.gender,
+  });
+
+  final String athleteId;
   final String name;
+  final String lastName;
   final String position;
+  final String imageUrl;
+  final String teamId;
+  final String gender;
 
   @override
   Widget build(BuildContext context) {
-    print('athlete: $id, $name, $position');
     return ReusableCard(
       backgroundColour: Colors.white38,
       borderColour: Colors.indigo,
       onPress: () {
-        print('selecionou atleta: $id');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AthleteForm(
+              athleteId: athleteId,
+              name: name,
+              lastName: lastName,
+              imageUrl: imageUrl,
+              position: position,
+              teamId: teamId,
+              gender: gender,
+            ),
+          ),
+        );
       },
       cardChild: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             CircleAvatar(
               backgroundColor: Colors.orange,
               foregroundColor: Colors.black,
-              child: Text('CP',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0)),
-              backgroundImage: AssetImage('assets/img/Krro1.jpg'),
+              backgroundImage: imageUrl != null
+                  ? NetworkImage(imageUrl + '&' + DateTime.now().toString())
+                  : AssetImage('assets/img/Krro1.jpg'),
               radius: 70.0,
             ),
             Text(

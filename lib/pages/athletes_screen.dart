@@ -66,9 +66,10 @@ class AthletesList extends StatelessWidget {
           child: ListView.builder(
             itemBuilder: (context, index) {
               return AthleteProfile(
-                id: athletes[index].id,
+                athleteId: athletes[index].id,
                 name: athletes[index].data()['name'],
                 position: athletes[index].data()['position'],
+                imageUrl: athletes[index].data()['imageUrl'],
               );
             },
             itemCount: athletes.length,

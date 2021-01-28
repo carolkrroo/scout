@@ -12,8 +12,8 @@ class Location {
           await getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
       latitude = position.latitude;
       longitude = position.longitude;
-    } catch (e) {
-      print(e);
+    } catch (error) {
+      print("Error on getting current location: $error");
     }
   }
 }

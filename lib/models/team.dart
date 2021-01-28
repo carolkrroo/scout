@@ -1,6 +1,10 @@
-class Team {
-  final String name;
-  final String imageUrl;
+import 'dart:io';
 
-  Team({this.name, this.imageUrl});
+class Team {
+  String teamId;
+  String name;
+  File image;
+  String imageUrl;
+
+  Team({this.teamId, this.name, this.image, this.imageUrl});
 }

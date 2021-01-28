@@ -38,8 +38,8 @@ class _ScoutHomeState extends State<ScoutHome> {
       if (user != null) {
         loggedInUser = user;
       }
-    } catch (e) {
-      print('Erro ao solicitar sessão do usuário: $e');
+    } catch (error) {
+      print("Error on getting current user: $error");
     }
   }
 
@@ -129,7 +129,7 @@ class _ScoutHomeState extends State<ScoutHome> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

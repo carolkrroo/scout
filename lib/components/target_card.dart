@@ -24,7 +24,7 @@ class _TargetCardState extends State<TargetCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(4.0),
+      padding: EdgeInsets.all(4.0),
       child: DragTarget(
         onWillAccept: (data) {
           print('onWillAccept: $data');

@@ -38,7 +38,7 @@ class _TimerState extends State<Timer> {
     return Row(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.only(bottom: 0),
+          padding: EdgeInsets.only(bottom: 0),
           child: StreamBuilder<int>(
             stream: _stopWatchTimer.rawTime,
             initialData: _stopWatchTimer.rawTime.value,
@@ -49,7 +49,7 @@ class _TimerState extends State<Timer> {
               return Column(
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8),
                     child: Text(
                       displayTime,
                       style: const TextStyle(

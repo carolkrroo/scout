@@ -22,19 +22,17 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    print('initState');
     getCurrentUser();
   }
 
   void getCurrentUser() {
     try {
       final user = _auth.currentUser;
-      print('user: $user');
       if (user != null) {
         loggedInUser = user;
       }
-    } catch (e) {
-      print(e);
+    } catch (error) {
+      print("Error on getting current user: $error");
     }
   }
 

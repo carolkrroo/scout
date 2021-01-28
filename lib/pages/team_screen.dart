@@ -46,8 +46,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
   }
 }
 
-// NetworkImage(
-// 'https://pbs.twimg.com/profile_images/529600536551493632/aIrw5Ge7_400x400.jpeg'),
 class TeamsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
