@@ -254,38 +254,6 @@ class _AthleteFormState extends State<AthleteForm> {
                           },
                         ),
                       ),
-                      // Row(
-                      //   children: <Widget>[
-                      //     ReusableCard(
-                      //       backgroundColour: _athlete.gender == Gender.male
-                      //           ? kActiveCardColour
-                      //           : kInactiveCardColour,
-                      //       cardChild: IconContent(
-                      //         icon: FontAwesomeIcons.mars,
-                      //         label: 'MALE',
-                      //       ),
-                      //       onPress: () {
-                      //         setState(() {
-                      //           _athlete.gender = Gender.male.toString();
-                      //         });
-                      //       },
-                      //     ),
-                      //     ReusableCard(
-                      //       backgroundColour: _athlete.gender == Gender.female
-                      //           ? kActiveCardColour
-                      //           : kInactiveCardColour,
-                      //       cardChild: IconContent(
-                      //         icon: FontAwesomeIcons.venus,
-                      //         label: 'FEMALE',
-                      //       ),
-                      //       onPress: () {
-                      //         setState(() {
-                      //           _athlete.gender = Gender.female.toString();
-                      //         });
-                      //       },
-                      //     ),
-                      //   ],
-                      // ),
                     ],
                   ),
                 ),
@@ -308,11 +276,11 @@ class _AthleteFormState extends State<AthleteForm> {
                                 .add(
                               {
                                 'created_at': DateTime.now(),
-                                'name': widget.name,
-                                'last_name': widget.lastName,
+                                'name': _athlete.name,
+                                'last_name': _athlete.lastName,
                                 'gender': _athlete.gender,
-                                'position': widget.position,
-                                'team_id': widget.teamId,
+                                'position': _athlete.position,
+                                'team_id': _athlete.teamId,
                               },
                             );
                             setState(() {
@@ -322,7 +290,7 @@ class _AthleteFormState extends State<AthleteForm> {
                           if (_athlete.image != null) {
                             await _storage
                                 .ref()
-                                .child(widget.athleteId)
+                                .child(_athlete.athleteId)
                                 .putFile(_athlete.image);
                           }
                           await _firestore

@@ -27,7 +27,7 @@ class TeamsListHorizontal extends StatelessWidget {
         final teams = snapshot.data.docs;
         if (teams.isEmpty) {
           return ReusableCard(
-            backgroundColour: Colors.white38,
+            backgroundColour: Colors.black12,
             borderColour: Colors.white38,
             cardChild: IconContent(
               icon: FontAwesomeIcons.users,

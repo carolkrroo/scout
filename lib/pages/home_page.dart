@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scout/components/round_icon_button.dart';
-import 'package:scout/constants.dart';
 import 'package:scout/pages/athletes_screen.dart';
 import 'package:scout/pages/chat_screen.dart';
 import 'package:scout/pages/match_form.dart';
@@ -137,6 +136,49 @@ class _ScoutHomeState extends State<ScoutHome> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
+                    'PARTIDAS',
+                    style: TextStyle(
+                      fontFamily: 'BarlowSemiCondensed',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24.0,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      FlatButton(
+                        child: Text(
+                          "VER TODOS",
+                        ),
+                        onPressed: () {
+                          print("clicou em VER TODOS");
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => TeamsScreen(),
+                          //   ),
+                          // );
+                        },
+                      ),
+                      RoundIconButton(
+                        colour: Colors.red,
+                        icon: Icons.add,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MatchForm(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
                     'TIMES',
                     style: TextStyle(
                       fontFamily: 'BarlowSemiCondensed',
@@ -219,21 +261,6 @@ class _ScoutHomeState extends State<ScoutHome> {
                 ],
               ),
               AthletesListHorizontal(),
-              FlatButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MatchForm(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'CRIAR PARTIDA',
-                  style: kLargeButtonTextStyle,
-                ),
-                color: kBottomContainerColour,
-              ),
             ],
           ),
         ),
